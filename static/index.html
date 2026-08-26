@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kombi Route Optimizer — Gweru</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🚐 Kombi Route Optimizer</h1>
+    <p class="subtitle">Shortest, cheapest, and fastest routes across Gweru — built with Dijkstra's algorithm &amp; A* search</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="field">
+        <label for="from">From</label>
+        <select id="from"></select>
+      </div>
+      <div class="field">
+        <label for="to">To</label>
+        <select id="to"></select>
+      </div>
+      <div class="field">
+        <label for="mode">Optimize for</label>
+        <select id="mode">
+          <option value="shortest">Shortest distance</option>
+          <option value="cheapest">Cheapest fare</option>
+          <option value="fastest">Fastest time</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="algo">Algorithm</label>
+        <select id="algo">
+          <option value="dijkstra">Dijkstra</option>
+          <option value="astar">A*</option>
+        </select>
+      </div>
+      <button id="findBtn">Find Route</button>
+    </section>
+
+    <section id="result" class="result hidden">
+      <h2>Route</h2>
+      <p id="routePath"></p>
+      <div class="stats">
+        <div><span id="statDistance"></span><label>km</label></div>
+        <div><span id="statFare"></span><label>USD fare</label></div>
+        <div><span id="statTime"></span><label>minutes</label></div>
+      </div>
+    </section>
+
+    <div id="network"></div>
+  </main>
+
+  <footer>
+    <p>Built by Aleck Mudyanadzo — Midlands State University, Computer Science. Data is illustrative; verify fares/distances before production use.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
