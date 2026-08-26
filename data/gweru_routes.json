@@ -1,0 +1,243 @@
+{
+  "_note": "Stop names and connections are based on real Gweru suburbs/ranks. Exact distances, fares and travel times are ESTIMATES for demo purposes \u2014 swap in real surveyed data before presenting this as production-accurate.",
+  "stops": [
+    {
+      "id": "kudzanai",
+      "name": "Kudzanai Bus Terminus",
+      "lat": -19.418,
+      "lon": 29.815
+    },
+    {
+      "id": "town",
+      "name": "Gweru CBD",
+      "lat": -19.416,
+      "lon": 29.817
+    },
+    {
+      "id": "mkoba1",
+      "name": "Mkoba 1",
+      "lat": -19.44,
+      "lon": 29.785
+    },
+    {
+      "id": "mkoba6",
+      "name": "Mkoba 6",
+      "lat": -19.455,
+      "lon": 29.77
+    },
+    {
+      "id": "mkoba14",
+      "name": "Mkoba 14",
+      "lat": -19.465,
+      "lon": 29.76
+    },
+    {
+      "id": "mkoba18",
+      "name": "Mkoba 18",
+      "lat": -19.47,
+      "lon": 29.755
+    },
+    {
+      "id": "senga",
+      "name": "Senga",
+      "lat": -19.395,
+      "lon": 29.83
+    },
+    {
+      "id": "ascot",
+      "name": "Ascot",
+      "lat": -19.43,
+      "lon": 29.84
+    },
+    {
+      "id": "windsor",
+      "name": "Windsor Park",
+      "lat": -19.425,
+      "lon": 29.845
+    },
+    {
+      "id": "ridgemont",
+      "name": "Ridgemont",
+      "lat": -19.39,
+      "lon": 29.81
+    },
+    {
+      "id": "northlea",
+      "name": "Northlea",
+      "lat": -19.385,
+      "lon": 29.805
+    },
+    {
+      "id": "mtapa",
+      "name": "Mtapa",
+      "lat": -19.45,
+      "lon": 29.825
+    },
+    {
+      "id": "woodview",
+      "name": "Woodview",
+      "lat": -19.405,
+      "lon": 29.795
+    },
+    {
+      "id": "athlone",
+      "name": "Athlone",
+      "lat": -19.41,
+      "lon": 29.85
+    },
+    {
+      "id": "msu_main",
+      "name": "MSU Main Campus",
+      "lat": -19.482,
+      "lon": 29.818
+    },
+    {
+      "id": "guinea_fowl",
+      "name": "Guinea Fowl",
+      "lat": -19.53,
+      "lon": 29.87
+    }
+  ],
+  "routes": [
+    {
+      "from": "town",
+      "to": "kudzanai",
+      "distance_km": 0.38,
+      "fare_usd": 0.5,
+      "time_min": 1.0
+    },
+    {
+      "from": "kudzanai",
+      "to": "mkoba1",
+      "distance_km": 4.98,
+      "fare_usd": 1.0,
+      "time_min": 13.6
+    },
+    {
+      "from": "mkoba1",
+      "to": "mkoba6",
+      "distance_km": 2.87,
+      "fare_usd": 1.0,
+      "time_min": 7.8
+    },
+    {
+      "from": "mkoba6",
+      "to": "mkoba14",
+      "distance_km": 1.91,
+      "fare_usd": 0.5,
+      "time_min": 5.2
+    },
+    {
+      "from": "mkoba14",
+      "to": "mkoba18",
+      "distance_km": 0.96,
+      "fare_usd": 0.5,
+      "time_min": 2.6
+    },
+    {
+      "from": "town",
+      "to": "senga",
+      "distance_km": 3.38,
+      "fare_usd": 1.0,
+      "time_min": 9.2
+    },
+    {
+      "from": "town",
+      "to": "ascot",
+      "distance_km": 3.59,
+      "fare_usd": 1.0,
+      "time_min": 9.8
+    },
+    {
+      "from": "ascot",
+      "to": "windsor",
+      "distance_km": 0.96,
+      "fare_usd": 0.5,
+      "time_min": 2.6
+    },
+    {
+      "from": "town",
+      "to": "ridgemont",
+      "distance_km": 3.73,
+      "fare_usd": 1.0,
+      "time_min": 10.2
+    },
+    {
+      "from": "ridgemont",
+      "to": "northlea",
+      "distance_km": 0.96,
+      "fare_usd": 0.5,
+      "time_min": 2.6
+    },
+    {
+      "from": "town",
+      "to": "mtapa",
+      "distance_km": 4.84,
+      "fare_usd": 1.0,
+      "time_min": 13.2
+    },
+    {
+      "from": "mtapa",
+      "to": "mkoba1",
+      "distance_km": 5.42,
+      "fare_usd": 1.0,
+      "time_min": 14.8
+    },
+    {
+      "from": "town",
+      "to": "woodview",
+      "distance_km": 3.26,
+      "fare_usd": 1.0,
+      "time_min": 8.9
+    },
+    {
+      "from": "woodview",
+      "to": "northlea",
+      "distance_km": 3.07,
+      "fare_usd": 1.0,
+      "time_min": 8.4
+    },
+    {
+      "from": "town",
+      "to": "athlone",
+      "distance_km": 4.41,
+      "fare_usd": 1.0,
+      "time_min": 12.0
+    },
+    {
+      "from": "athlone",
+      "to": "windsor",
+      "distance_km": 2.19,
+      "fare_usd": 0.5,
+      "time_min": 6.0
+    },
+    {
+      "from": "kudzanai",
+      "to": "msu_main",
+      "distance_km": 8.9,
+      "fare_usd": 1.5,
+      "time_min": 24.3
+    },
+    {
+      "from": "mkoba18",
+      "to": "msu_main",
+      "distance_km": 8.42,
+      "fare_usd": 1.5,
+      "time_min": 23.0
+    },
+    {
+      "from": "town",
+      "to": "guinea_fowl",
+      "distance_km": 17.3,
+      "fare_usd": 2.0,
+      "time_min": 47.2
+    },
+    {
+      "from": "msu_main",
+      "to": "guinea_fowl",
+      "distance_km": 9.54,
+      "fare_usd": 2.0,
+      "time_min": 26.0
+    }
+  ]
+}
