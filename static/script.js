@@ -40,8 +40,8 @@ function renderBaseGraph() {
     label: stop.name,
     shape: 'dot',
     size: 12,
-    color: '#8d596b',
-    font: { color: '#493239', size: 13 },
+    color: '#8a795e',
+    font: { color: '#382a28', size: 13 },
   })));
   edgesDataSet = new vis.DataSet();
 
@@ -54,7 +54,7 @@ function renderBaseGraph() {
 
 function highlightPath(path) {
   nodesDataSet.forEach((node) => {
-    nodesDataSet.update({ id: node.id, color: '#8d596b', size: 12 });
+    nodesDataSet.update({ id: node.id, color: '#8a795e', size: 12 });
   });
   edgesDataSet.clear();
 
@@ -103,9 +103,21 @@ function findRoute() {
 
   message.textContent = '';
   document.getElementById('result').classList.remove('hidden');
-  document.getElementById('routePath').textContent = result.path
-    .map((id) => routeData.stops.find((stop) => stop.id === id).name)
-    .join(' → ');
+  const routePath = document.getElementById('routePath');
+  routePath.replaceChildren();
+  result.path.forEach((id, index) => {
+    if (index > 0) {
+      const connector = document.createElement('span');
+      connector.className = 'route-connector';
+      connector.setAttribute('aria-hidden', 'true');
+      connector.textContent = '→';
+      routePath.append(connector);
+    }
+    const stop = document.createElement('span');
+    stop.className = 'route-stop';
+    stop.textContent = routeData.stops.find((item) => item.id === id).name;
+    routePath.append(stop);
+  });
   document.getElementById('statDistance').textContent = result.totals.distance_km.toFixed(2);
   document.getElementById('statFare').textContent = `$${result.totals.fare_usd.toFixed(2)}`;
   document.getElementById('statTime').textContent = result.totals.time_min.toFixed(1);

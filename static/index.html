@@ -19,85 +19,125 @@
 <body>
   <header class="site-header">
     <div class="header-content">
-      <p class="eyebrow">Gweru, Zimbabwe <span aria-hidden="true">•</span> Route planner</p>
-      <h1><span class="brand-mark" aria-hidden="true">K</span> Kombi Route Optimizer</h1>
-      <p class="subtitle">Compare journeys across the city with Dijkstra and A* search.</p>
+      <div class="header-copy">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" focusable="false">
+              <path d="M8 24V8m0 8h16M24 8v16" />
+              <circle cx="8" cy="8" r="3" />
+              <circle cx="24" cy="8" r="3" />
+              <circle cx="24" cy="24" r="3" />
+            </svg>
+          </span>
+          <p class="eyebrow">Gweru, Zimbabwe <span aria-hidden="true">•</span> City route guide</p>
+        </div>
+        <h1>Kombi Route Optimizer</h1>
+        <p class="subtitle">A clearer way to compare journeys across the city.</p>
+        <p class="header-detail"><span aria-hidden="true"></span> Plan with distance, fare, or time</p>
+      </div>
+      <div class="header-art" aria-hidden="true">
+        <svg viewBox="0 0 420 230" focusable="false">
+          <path class="map-grid" d="M30 32h360M30 72h360M30 112h360M30 152h360M30 192h360M65 12v206M125 12v206M185 12v206M245 12v206M305 12v206M365 12v206" />
+          <path class="map-route" d="M66 168c38-2 41-65 84-65s47 40 84 40 47-74 90-74" />
+          <circle class="map-stop" cx="66" cy="168" r="8" />
+          <circle class="map-stop" cx="150" cy="103" r="8" />
+          <circle class="map-stop" cx="234" cy="143" r="8" />
+          <circle class="map-stop map-stop-final" cx="324" cy="69" r="10" />
+          <circle class="map-center" cx="324" cy="69" r="3" />
+          <text x="49" y="198">START</text>
+          <text x="324" y="43" text-anchor="middle">DESTINATION</text>
+        </svg>
+        <span class="art-caption">YOUR CITY, CONNECTED</span>
+      </div>
     </div>
   </header>
 
   <main>
-    <section class="controls-card" aria-labelledby="planner-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Plan a journey</p>
-          <h2 id="planner-title">Where are you headed?</h2>
-        </div>
-        <p class="section-note">Choose two stops and what matters most.</p>
-      </div>
-      <div class="controls">
-        <div class="field">
-          <label for="from">Starting stop</label>
-          <select id="from"></select>
-        </div>
-        <div class="field">
-          <label for="to">Destination</label>
-          <select id="to"></select>
-        </div>
-        <div class="field">
-          <label for="mode">Prioritize</label>
-          <select id="mode">
-            <option value="shortest">Shortest distance</option>
-            <option value="cheapest">Lowest fare</option>
-            <option value="fastest">Fastest journey</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="algo">Search method</label>
-          <select id="algo">
-            <option value="dijkstra">Dijkstra</option>
-            <option value="astar">A* search</option>
-          </select>
-        </div>
-        <button id="findBtn" disabled>Find a route</button>
-      </div>
-    </section>
+    <div class="route-workspace">
+      <div class="journey-column">
+        <section class="controls-card" aria-labelledby="planner-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Your next journey</p>
+              <h2 id="planner-title">Where are you headed?</h2>
+            </div>
+            <span class="step-marker" aria-hidden="true">01</span>
+          </div>
+          <p class="planner-intro">Choose your stops and the detail you want to optimize.</p>
+          <div class="controls">
+            <div class="field">
+              <label for="from"><span class="field-index">A</span> Starting stop</label>
+              <select id="from"></select>
+            </div>
+            <div class="field">
+              <label for="to"><span class="field-index">B</span> Destination</label>
+              <select id="to"></select>
+            </div>
+            <div class="field">
+              <label for="mode">Prioritize</label>
+              <select id="mode">
+                <option value="shortest">Shortest distance</option>
+                <option value="cheapest">Lowest fare</option>
+                <option value="fastest">Fastest journey</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="algo">Search method</label>
+              <select id="algo">
+                <option value="dijkstra">Dijkstra</option>
+                <option value="astar">A* search</option>
+              </select>
+            </div>
+            <button id="findBtn" disabled>
+              Find a route
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M3 10h13m-5-5 5 5-5 5" />
+              </svg>
+            </button>
+          </div>
+          <p class="algorithm-note"><span aria-hidden="true">✳</span> A* search is available for shortest distance.</p>
+        </section>
 
-    <p id="message" class="status" role="status" aria-live="polite">Loading route data…</p>
+        <p id="message" class="status" role="status" aria-live="polite">Loading route data…</p>
 
-    <section id="result" class="result-card hidden" aria-labelledby="result-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Your journey</p>
-          <h2 id="result-title">Recommended route</h2>
-        </div>
+        <section id="result" class="result-card hidden" aria-labelledby="result-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Route summary</p>
+              <h2 id="result-title">Recommended route</h2>
+            </div>
+            <span class="step-marker" aria-hidden="true">02</span>
+          </div>
+          <p id="routePath" class="route-path" aria-label="Stops along your route"></p>
+          <dl class="stats">
+            <div class="stat">
+              <dt>Distance</dt>
+              <dd><span id="statDistance"></span><span class="unit">km</span></dd>
+            </div>
+            <div class="stat">
+              <dt>Estimated fare</dt>
+              <dd><span id="statFare"></span><span class="unit">USD</span></dd>
+            </div>
+            <div class="stat">
+              <dt>Estimated time</dt>
+              <dd><span id="statTime"></span><span class="unit">minutes</span></dd>
+            </div>
+          </dl>
+        </section>
       </div>
-      <p id="routePath" class="route-path"></p>
-      <dl class="stats">
-        <div class="stat">
-          <dt>Distance</dt>
-          <dd><span id="statDistance"></span><span class="unit">km</span></dd>
-        </div>
-        <div class="stat">
-          <dt>Estimated fare</dt>
-          <dd><span id="statFare"></span><span class="unit">USD</span></dd>
-        </div>
-        <div class="stat">
-          <dt>Estimated time</dt>
-          <dd><span id="statTime"></span><span class="unit">minutes</span></dd>
-        </div>
-      </dl>
-    </section>
 
-    <section class="map-card" aria-labelledby="map-title">
-      <div class="section-heading map-heading">
-        <div>
-          <p class="eyebrow">Across the city</p>
-          <h2 id="map-title">Stop map</h2>
+      <section class="map-card" aria-labelledby="map-title">
+        <div class="section-heading map-heading">
+          <div>
+            <p class="eyebrow">Explore the network</p>
+            <h2 id="map-title">Gweru stop map</h2>
+          </div>
+          <span class="map-key"><span aria-hidden="true"></span> Your route</span>
         </div>
-        <p class="section-note">The selected journey appears in maroon.</p>
-      </div>
-      <div id="network" role="region" aria-label="Interactive map of Gweru stops and the selected route"></div>
-    </section>
+        <div id="network" role="region" aria-label="Interactive map of Gweru stops and the selected route"></div>
+        <p class="map-caption"><span aria-hidden="true">+</span> Select a route to trace it across the map.</p>
+      </section>
+    </div>
   </main>
 
   <footer>
