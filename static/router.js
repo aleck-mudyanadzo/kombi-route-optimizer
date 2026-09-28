@@ -98,7 +98,9 @@
       if (current === goal) break;
 
       adjacency.get(current).forEach(({ to, route }) => {
-        const candidate = distances.get(current) + route[weightKey];
+        const edgeWeight = route[weightKey];
+        if (!Number.isFinite(edgeWeight)) return;
+        const candidate = distances.get(current) + edgeWeight;
         if (candidate < distances.get(to)) {
           distances.set(to, candidate);
           previous.set(to, current);
@@ -116,13 +118,37 @@
     }
 
     const totals = { distance_km: 0, fare_usd: 0, time_min: 0 };
+    const fareEvidence = [];
+    let segmentCount = 0;
     for (let index = 0; index < path.length - 1; index += 1) {
       const edge = adjacency.get(path[index]).find(({ to }) => to === path[index + 1]);
+      segmentCount += 1;
       WEIGHTS.forEach((weight) => {
-        totals[weight] += edge.route[weight];
+        if (!Number.isFinite(edge.route[weight])) {
+          totals[weight] = null;
+        } else if (totals[weight] !== null) {
+          totals[weight] += edge.route[weight];
+        }
       });
+      if (edge.route.fare_evidence) {
+        fareEvidence.push({
+          from: path[index],
+          to: path[index + 1],
+          fare_usd: edge.route.fare_usd,
+          ...edge.route.fare_evidence,
+        });
+      }
     }
-    return { path, total: distances.get(goal), totals };
+    const fareStatus = fareEvidence.length === 0
+      ? 'estimate'
+      : fareEvidence.length === segmentCount ? 'reported' : 'mixed';
+    return {
+      path,
+      total: distances.get(goal),
+      totals,
+      fareStatus,
+      fareEvidence,
+    };
   }
 
   return { findRoute };

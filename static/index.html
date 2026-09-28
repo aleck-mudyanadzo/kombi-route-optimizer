@@ -4,17 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kombi Route Optimizer | Gweru</title>
-<meta name="description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
+<meta name="description" content="Explore mapped Gweru streets and buildings in 2D or 3D, then compare illustrative kombi routes. Fares and journey figures are estimates." />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Kombi Route Optimizer | Gweru" />
-<meta property="og:description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
+<meta property="og:description" content="Explore mapped Gweru streets and buildings in 2D or 3D, then compare illustrative kombi routes. Fares and journey figures are estimates." />
 <meta property="og:url" content="__CANONICAL_URL__" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="Kombi Route Optimizer | Gweru" />
-<meta name="twitter:description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
+<meta name="twitter:description" content="Explore mapped Gweru streets and buildings in 2D or 3D, then compare illustrative kombi routes. Fares and journey figures are estimates." />
 <link rel="canonical" href="__CANONICAL_URL__" />
 <link rel="stylesheet" href="./style.css" />
-<script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -112,17 +113,18 @@
           <dl class="stats">
             <div class="stat">
               <dt>Distance</dt>
-              <dd><span id="statDistance"></span><span class="unit">km</span></dd>
+              <dd><span id="statDistance"></span><span id="statDistanceUnit" class="unit">km</span></dd>
             </div>
             <div class="stat">
-              <dt>Estimated fare</dt>
+              <dt id="statFareLabel">Estimated fare</dt>
               <dd><span id="statFare"></span><span class="unit">USD</span></dd>
             </div>
             <div class="stat">
               <dt>Estimated time</dt>
-              <dd><span id="statTime"></span><span class="unit">minutes</span></dd>
+              <dd><span id="statTime"></span><span id="statTimeUnit" class="unit">minutes</span></dd>
             </div>
           </dl>
+          <p id="fareNote" class="fare-note" role="note"></p>
         </section>
       </div>
 
@@ -130,12 +132,21 @@
         <div class="section-heading map-heading">
           <div>
             <p class="eyebrow">Explore the network</p>
-            <h2 id="map-title">Gweru stop map</h2>
+            <h2 id="map-title">Gweru street map</h2>
           </div>
-          <span class="map-key"><span aria-hidden="true"></span> Your route</span>
+          <div class="map-tools">
+            <div class="map-mode" role="group" aria-label="Map perspective">
+              <button id="map2d" type="button" aria-pressed="true" disabled>2D</button>
+              <button id="map3d" type="button" aria-pressed="false" disabled>3D buildings</button>
+            </div>
+            <span class="map-key"><span aria-hidden="true"></span> Selected route</span>
+          </div>
         </div>
-        <div id="network" role="region" aria-label="Interactive map of Gweru stops and the selected route"></div>
-        <p class="map-caption"><span aria-hidden="true">+</span> Select a route to trace it across the map.</p>
+        <p id="mapDescription" class="map-caption">Mapped streets and buildings from OpenStreetMap are shown on this map. Stop positions are approximate. Dashed links are illustrative model connections, not official kombi lines, road directions, or turn by turn paths.</p>
+        <div id="network" role="region" aria-label="Interactive map of Gweru streets, buildings, stops, and model connections" aria-describedby="mapDescription"></div>
+        <p id="mapStatus" class="map-status" role="status" aria-live="polite">Loading mapped streets and buildings…</p>
+        <p class="map-attribution"><a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">© OpenStreetMap contributors</a> · Map tiles by <a href="https://openfreemap.org/" rel="noopener noreferrer" target="_blank">OpenFreeMap</a></p>
+        <p class="map-caption route-hint">Choose two stops above to highlight the model connection between them.</p>
       </section>
     </div>
   </main>
@@ -143,12 +154,14 @@
   <footer>
     <div class="disclaimer">
       <p class="eyebrow">Important information</p>
-      <p>Stops, connections, route distances, fares, and travel times are estimates, not live transit information. Please verify all figures before relying on them.</p>
+      <p>Stop positions are approximate, and dashed connections are illustrative model links, not official kombi lines or road directions. Route distances, fares, and travel times are estimates, not live transit information. Current USD fare amounts are not verified prices from local operators. No current Gweru fare schedule with route details, a named source, and a clear effective date has been verified for these estimates. Confirm prices locally before travel.</p>
+      <p class="fare-source-note">A user reported a US$0.50 fare for the MSU Main Campus to Gweru CBD trip on 28 September 2026; this report is not independently verified and has no confirmed effective date. The graph applies this reported fare in both directions because its connections are undirected. <a href="https://www.heraldonline.co.zw/zupco-returns-to-cushion-gweru-commuters/" rel="noopener noreferrer" target="_blank">The Herald reported</a> a general Gweru private kombi range of US$0.75 to US$1 per trip on 24 March 2026, but gave no route schedule or effective date. The general range is context only and is not used for route weights.</p>
     </div>
     <p class="credit">Built by Aleck Mudyanadzo <span aria-hidden="true">•</span> Midlands State University, Computer Science</p>
   </footer>
 
   <script src="./router.js"></script>
+  <script src="./map-data.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>

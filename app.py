@@ -131,20 +131,45 @@ def route():
 
     # Compute all three totals along the chosen path for a fuller comparison view
     totals = {"distance_km": 0.0, "fare_usd": 0.0, "time_min": 0.0}
+    fare_legs = []
+    sourced_fare_legs = []
     for a, b in zip(path, path[1:]):
         for edge in graph.adjacency[a]:
             if edge.to == b:
-                totals["distance_km"] += edge.distance_km
+                if edge.distance_km is None:
+                    totals["distance_km"] = None
+                elif totals["distance_km"] is not None:
+                    totals["distance_km"] += edge.distance_km
                 totals["fare_usd"] += edge.fare_usd
-                totals["time_min"] += edge.time_min
+                if edge.time_min is None:
+                    totals["time_min"] = None
+                elif totals["time_min"] is not None:
+                    totals["time_min"] += edge.time_min
+                fare_legs.append((a, b))
+                if edge.fare_evidence:
+                    sourced_fare_legs.append({
+                        "from": a,
+                        "to": b,
+                        "fare_usd": edge.fare_usd,
+                        **edge.fare_evidence,
+                    })
                 break
+
+    if not sourced_fare_legs:
+        fare_status = "estimate"
+    elif len(sourced_fare_legs) == len(fare_legs):
+        fare_status = "reported"
+    else:
+        fare_status = "mixed"
 
     return jsonify({
         "path": path,
         "stop_names": graph.stop_names(path),
-        "total_distance_km": round(totals["distance_km"], 2),
+        "total_distance_km": round(totals["distance_km"], 2) if totals["distance_km"] is not None else None,
         "total_fare_usd": round(totals["fare_usd"], 2),
-        "total_time_min": round(totals["time_min"], 1),
+        "total_time_min": round(totals["time_min"], 1) if totals["time_min"] is not None else None,
+        "fare_status": fare_status,
+        "fare_evidence": sourced_fare_legs,
         "mode": mode,
         "algo": algo,
     })

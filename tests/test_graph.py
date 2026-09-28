@@ -69,6 +69,31 @@ def test_real_data_loads_and_routes():
     assert total > 0
 
 
+def test_user_reported_cbd_msu_fare_is_a_sourced_bidirectional_edge():
+    g = Graph.from_json(DATA_PATH)
+    path, total = g.dijkstra("town", "msu_main", "fare_usd")
+    reverse_path, reverse_total = g.dijkstra("msu_main", "town", "fare_usd")
+
+    assert path == ["town", "msu_main"]
+    assert reverse_path == ["msu_main", "town"]
+    assert total == reverse_total == 0.5
+    assert g.dijkstra("town", "msu_main", "distance_km")[0] == [
+        "town",
+        "kudzanai",
+        "msu_main",
+    ]
+    edge = next(edge for edge in g.adjacency["town"] if edge.to == "msu_main")
+    reverse_edge = next(edge for edge in g.adjacency["msu_main"] if edge.to == "town")
+    assert edge.fare_evidence == reverse_edge.fare_evidence
+    assert edge.fare_evidence["source"] == "User reported"
+    assert edge.fare_evidence["reported_on"] == "2026-09-28"
+    assert edge.fare_evidence["effective_from"] is None
+    assert edge.fare_evidence["independently_verified"] is False
+    assert "applies it in both directions" in edge.fare_evidence["directional_scope"]
+    assert edge.distance_km is None
+    assert edge.time_min is None
+
+
 def test_astar_is_rejected_for_non_distance_modes():
     g = Graph.from_json(DATA_PATH)
     assert g.a_star("town", "msu_main", "distance_km") is not None
@@ -113,6 +138,31 @@ def test_api_accepts_supported_algorithms(algo, mode):
 
     assert resp.status_code == 200
     assert resp.get_json()["algo"] == algo
+
+
+def test_api_reports_user_fare_provenance_for_direct_cbd_msu_trip():
+    response = flask_app.test_client().get(
+        "/api/route?from=town&to=msu_main&mode=cheapest&algo=dijkstra"
+    )
+
+    assert response.status_code == 200
+    result = response.get_json()
+    assert result["path"] == ["town", "msu_main"]
+    assert result["total_fare_usd"] == 0.5
+    assert result["total_distance_km"] is None
+    assert result["total_time_min"] is None
+    assert result["fare_status"] == "reported"
+    assert result["fare_evidence"] == [{
+        "from": "town",
+        "to": "msu_main",
+        "fare_usd": 0.5,
+        "source": "User reported",
+        "reported_on": "2026-09-28",
+        "currency": "USD",
+        "effective_from": None,
+        "independently_verified": False,
+        "directional_scope": "The report describes the MSU Main Campus to Gweru CBD trip. The graph applies it in both directions because graph connections are undirected.",
+    }]
 
 
 def test_robots_allows_crawling_and_omits_sitemap_without_public_url(monkeypatch):
