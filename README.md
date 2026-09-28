@@ -29,6 +29,7 @@ taking algorithms from the classroom into a locally relevant application.
 
 - Python 3 (OOP graph model, `graph.py`)
 - Flask (REST API, `app.py`)
+- Gunicorn (production WSGI server for deployment)
 - Vanilla JS + [vis-network](https://visjs.github.io/vis-network/) (frontend)
 - pytest (tests)
 
@@ -44,6 +45,7 @@ kombi-route-optimizer/
 │   ├── index.html
 │   ├── style.css
 │   └── script.js
+├── render.yaml             # Render web service configuration
 ├── tests/
 │   └── test_graph.py
 └── requirements.txt
@@ -63,8 +65,34 @@ Then open `http://localhost:5000` in your browser.
 Run the tests:
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
+
+## Deploying to Render
+
+The repository includes a Render Blueprint in `render.yaml`. Push the project
+to a GitHub repository under your account, create a new Blueprint in Render,
+and connect that repository. Render installs `requirements.txt` and starts the
+production server with Gunicorn (`gunicorn app:app`); the Flask development
+server is only used by `python app.py` for local work.
+
+After Render assigns the service a public URL, set `PUBLIC_BASE_URL` in the
+service's environment settings to that origin, for example
+`https://your-service.onrender.com` (no path or trailing route). Do not include
+credentials, a query string, or a fragment. Add this setting after the first
+deployment, when Render has assigned the public URL, then redeploy. The app
+uses this value to publish `/sitemap.xml` and include its absolute URL in
+`/robots.txt`; without it, public pages remain crawlable while API routes are
+excluded and the sitemap endpoint returns 503. If you later use a custom
+domain, update `PUBLIC_BASE_URL` to the canonical HTTPS origin and redeploy.
+
+The HTML page includes a descriptive title, search description, and Open Graph
+and Twitter summary metadata. Once the public URL is live, submit
+`https://your-service.onrender.com/sitemap.xml` (using your actual service URL)
+to Google Search Console or another search engine's webmaster tools if
+desired. Discovery and indexing are controlled by those services and are not
+guaranteed. The route distances, fares, and travel times are illustrative
+estimates, not verified live transit information.
 
 ## Algorithm design & complexity analysis
 

@@ -14,6 +14,8 @@ Endpoints:
 from flask import Flask, jsonify, request, send_from_directory
 from graph import Graph
 import os
+from urllib.parse import urlsplit
+from xml.etree.ElementTree import Element, SubElement, tostring
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -39,6 +41,54 @@ def stops():
         {"id": n.id, "name": n.name, "lat": n.lat, "lon": n.lon}
         for n in graph.nodes.values()
     ])
+
+
+def public_base_url():
+    value = os.environ.get("PUBLIC_BASE_URL", "").strip()
+    if not value:
+        return None
+
+    parsed = urlsplit(value)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.netloc
+        or parsed.username
+        or parsed.password
+        or parsed.path not in {"", "/"}
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("PUBLIC_BASE_URL must be an absolute HTTP(S) origin, e.g. https://example.com")
+
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+@app.route("/robots.txt")
+def robots():
+    lines = ["User-agent: *", "Allow: /", "Disallow: /api/"]
+    try:
+        base_url = public_base_url()
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 500
+    if base_url:
+        lines.append(f"Sitemap: {base_url}/sitemap.xml")
+    return app.response_class("\n".join(lines) + "\n", mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    try:
+        base_url = public_base_url()
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 500
+    if not base_url:
+        return jsonify({"error": "Set PUBLIC_BASE_URL to the public site origin to enable the sitemap"}), 503
+
+    urlset = Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+    url = SubElement(urlset, "url")
+    SubElement(url, "loc").text = f"{base_url}/"
+    body = tostring(urlset, encoding="utf-8", xml_declaration=True)
+    return app.response_class(body, mimetype="application/xml")
 
 
 @app.route("/api/route")
@@ -96,4 +146,4 @@ def route():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(port=5000)

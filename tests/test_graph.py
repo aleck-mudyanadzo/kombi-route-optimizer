@@ -106,3 +106,53 @@ def test_api_accepts_supported_algorithms(algo, mode):
 
     assert resp.status_code == 200
     assert resp.get_json()["algo"] == algo
+
+
+def test_robots_allows_crawling_and_omits_sitemap_without_public_url(monkeypatch):
+    monkeypatch.delenv("PUBLIC_BASE_URL", raising=False)
+    response = flask_app.test_client().get("/robots.txt")
+
+    assert response.status_code == 200
+    assert response.mimetype == "text/plain"
+    assert response.get_data(as_text=True) == "User-agent: *\nAllow: /\nDisallow: /api/\n"
+
+
+def test_sitemap_requires_public_base_url(monkeypatch):
+    monkeypatch.delenv("PUBLIC_BASE_URL", raising=False)
+    response = flask_app.test_client().get("/sitemap.xml")
+
+    assert response.status_code == 503
+    assert "PUBLIC_BASE_URL" in response.get_json()["error"]
+
+
+def test_robots_and_sitemap_use_configured_public_url(monkeypatch):
+    monkeypatch.setenv("PUBLIC_BASE_URL", "https://kombi.example/")
+    client = flask_app.test_client()
+
+    robots_response = client.get("/robots.txt")
+    sitemap_response = client.get("/sitemap.xml")
+
+    assert "Sitemap: https://kombi.example/sitemap.xml" in robots_response.get_data(as_text=True)
+    assert sitemap_response.status_code == 200
+    assert sitemap_response.mimetype == "application/xml"
+    assert b"<loc>https://kombi.example/</loc>" in sitemap_response.data
+
+
+def test_sitemap_rejects_invalid_public_url(monkeypatch):
+    monkeypatch.setenv("PUBLIC_BASE_URL", "https://example.com/path")
+
+    response = flask_app.test_client().get("/sitemap.xml")
+
+    assert response.status_code == 500
+    assert "PUBLIC_BASE_URL must be an absolute HTTP(S) origin" in response.get_json()["error"]
+
+
+def test_home_page_includes_search_and_social_metadata():
+    response = flask_app.test_client().get("/")
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert '<title>Kombi Route Optimizer — Gweru</title>' in html
+    assert 'name="description"' in html
+    assert 'property="og:title"' in html
+    assert 'name="twitter:card"' in html
