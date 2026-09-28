@@ -6,6 +6,7 @@ const { findRoute } = require('./router.js');
 
 const frontendHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const frontendScript = fs.readFileSync(path.join(__dirname, 'script.js'), 'utf8');
+const frontendCss = fs.readFileSync(path.join(__dirname, 'style.css'), 'utf8');
 const data = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'data', 'gweru_routes.json'),
   'utf8',
@@ -33,6 +34,17 @@ test('keeps public page copy free of hyphens and preserves the route estimate di
     /estimates, not live transit information\. Please verify all figures before relying on them\./,
   );
   assert.match(frontendHtml, /id="message" class="status" role="status" aria-live="polite"/);
+});
+
+test('keeps the redesigned route and map presentation accessible and responsive', () => {
+  assert.match(frontendHtml, /id="routePath" class="route-path" aria-label="Stops along your route"/);
+  assert.match(frontendHtml, /id="network" role="region" aria-label="Interactive map of Gweru stops and the selected route"/);
+  assert.match(frontendScript, /routePath\.replaceChildren\(\)/);
+  assert.match(frontendScript, /stop\.textContent = routeData\.stops\.find/);
+  assert.doesNotMatch(frontendScript, /routePath\.innerHTML/);
+  assert.match(frontendCss, /button:focus-visible/);
+  assert.match(frontendCss, /@media \(max-width: 640px\)/);
+  assert.match(frontendCss, /prefers-reduced-motion: reduce/);
 });
 
 test('finds shortest routes using distance, fare, and time weights', () => {
