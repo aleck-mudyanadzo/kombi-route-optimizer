@@ -1,92 +1,116 @@
-let allStops = [];
-let network = null;
-let nodesDataSet, edgesDataSet;
+let routeData;
+let nodesDataSet;
+let edgesDataSet;
 
-async function loadStops() {
-  const res = await fetch('/api/stops');
-  allStops = await res.json();
+const weightForMode = {
+  cheapest: 'fare_usd',
+  fastest: 'time_min',
+  shortest: 'distance_km',
+};
 
-  const fromSel = document.getElementById('from');
-  const toSel = document.getElementById('to');
-  allStops.forEach(s => {
-    fromSel.add(new Option(s.name, s.id));
-    toSel.add(new Option(s.name, s.id));
-  });
-  fromSel.value = 'town';
-  toSel.value = 'msu_main';
+async function loadRoutes() {
+  const message = document.getElementById('message');
+  try {
+    const response = await fetch(new URL('./data/gweru_routes.json', document.baseURI));
+    if (!response.ok) {
+      throw new Error(`Could not load route data (${response.status}).`);
+    }
+    routeData = await response.json();
 
-  renderBaseGraph();
+    const fromSelect = document.getElementById('from');
+    const toSelect = document.getElementById('to');
+    routeData.stops.forEach((stop) => {
+      fromSelect.add(new Option(stop.name, stop.id));
+      toSelect.add(new Option(stop.name, stop.id));
+    });
+    fromSelect.value = 'town';
+    toSelect.value = 'msu_main';
+
+    renderBaseGraph();
+    document.getElementById('findBtn').disabled = false;
+    message.textContent = 'Choose two stops to find a route.';
+  } catch (error) {
+    message.textContent = `Unable to start the route finder: ${error.message}`;
+  }
 }
 
 function renderBaseGraph() {
-  const nodes = allStops.map(s => ({
-    id: s.id,
-    label: s.name,
+  nodesDataSet = new vis.DataSet(routeData.stops.map((stop) => ({
+    id: stop.id,
+    label: stop.name,
     shape: 'dot',
     size: 12,
     color: '#334155',
     font: { color: '#e2e8f0', size: 12 },
-  }));
-
-  nodesDataSet = new vis.DataSet(nodes);
+  })));
   edgesDataSet = new vis.DataSet();
 
   const container = document.getElementById('network');
-  network = new vis.Network(container, { nodes: nodesDataSet, edges: edgesDataSet }, {
+  new vis.Network(container, { nodes: nodesDataSet, edges: edgesDataSet }, {
     physics: { stabilization: true, barnesHut: { gravitationalConstant: -4000 } },
     interaction: { hover: true },
   });
 }
 
 function highlightPath(path) {
-  // reset all nodes
-  nodesDataSet.forEach(n => {
-    nodesDataSet.update({ id: n.id, color: '#334155', size: 12 });
+  nodesDataSet.forEach((node) => {
+    nodesDataSet.update({ id: node.id, color: '#334155', size: 12 });
   });
   edgesDataSet.clear();
 
-  path.forEach((id, i) => {
+  path.forEach((id, index) => {
     nodesDataSet.update({ id, color: '#22c55e', size: 18 });
-    if (i < path.length - 1) {
+    if (index < path.length - 1) {
       edgesDataSet.add({
         from: id,
-        to: path[i + 1],
+        to: path[index + 1],
         color: { color: '#22c55e' },
         width: 3,
-        arrows: '',
       });
     }
   });
 }
 
-async function findRoute() {
-  const from = document.getElementById('from').value;
-  const to = document.getElementById('to').value;
+function findRoute() {
+  const start = document.getElementById('from').value;
+  const goal = document.getElementById('to').value;
   const mode = document.getElementById('mode').value;
-  const algo = document.getElementById('algo').value;
+  const algorithm = document.getElementById('algo').value;
+  const message = document.getElementById('message');
 
-  if (from === to) {
-    alert('Pick two different stops.');
+  if (start === goal) {
+    message.textContent = 'Pick two different stops.';
+    return;
+  }
+  if (!Object.hasOwn(weightForMode, mode)) {
+    message.textContent = 'Choose a valid route optimization mode.';
+    return;
+  }
+  if (!['dijkstra', 'astar'].includes(algorithm)) {
+    message.textContent = 'Choose Dijkstra or A*.';
+    return;
+  }
+  if (algorithm === 'astar' && mode !== 'shortest') {
+    message.textContent = 'A* is only supported for shortest-distance routing. Choose Dijkstra for fare or time.';
     return;
   }
 
-  const url = `/api/route?from=${from}&to=${to}&mode=${mode}&algo=${algo}`;
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (data.error) {
-    alert(data.error);
+  const result = KombiRouter.findRoute(routeData, start, goal, weightForMode[mode], algorithm);
+  if (!result) {
+    message.textContent = 'No route found between these stops.';
     return;
   }
 
+  message.textContent = '';
   document.getElementById('result').classList.remove('hidden');
-  document.getElementById('routePath').textContent = data.stop_names.join(' → ');
-  document.getElementById('statDistance').textContent = data.total_distance_km;
-  document.getElementById('statFare').textContent = `$${data.total_fare_usd}`;
-  document.getElementById('statTime').textContent = data.total_time_min;
-
-  highlightPath(data.path);
+  document.getElementById('routePath').textContent = result.path
+    .map((id) => routeData.stops.find((stop) => stop.id === id).name)
+    .join(' → ');
+  document.getElementById('statDistance').textContent = result.totals.distance_km.toFixed(2);
+  document.getElementById('statFare').textContent = `$${result.totals.fare_usd.toFixed(2)}`;
+  document.getElementById('statTime').textContent = result.totals.time_min.toFixed(1);
+  highlightPath(result.path);
 }
 
 document.getElementById('findBtn').addEventListener('click', findRoute);
-loadStops();
+loadRoutes();
