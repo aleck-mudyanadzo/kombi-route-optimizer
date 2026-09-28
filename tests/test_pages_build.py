@@ -18,7 +18,9 @@ def test_builds_repo_relative_pages_with_canonical_crawler_files(tmp_path):
     assert f'<link rel="canonical" href="{canonical_url}"' in index_html
     assert 'href="./style.css"' in index_html
     assert 'src="./router.js"' in index_html
+    assert 'src="./map-data.js"' in index_html
     assert "__CANONICAL_URL__" not in index_html
+    assert (site_dir / "map-data.js").is_file()
     assert (site_dir / "data" / "gweru_routes.json").is_file()
     assert "Disallow: /api/" in (site_dir / "robots.txt").read_text(encoding="utf-8")
 

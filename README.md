@@ -3,7 +3,8 @@
 A shortest-path finder for Gweru's kombi (minibus taxi) network, built to explore
 and compare **Dijkstra's algorithm** and **A\* search** on a real-world-inspired
 transport graph. Given two stops, it finds the cheapest, fastest, or shortest
-route and visualizes it on an interactive graph.
+route and displays its stops and illustrative model connections on a mapped
+street and building basemap.
 
 Built as part of my Design & Analysis of Algorithms coursework at Midlands
 State University, Computer Science.
@@ -21,7 +22,12 @@ taking algorithms from the classroom into a locally relevant application.
 - **Three optimization modes**: cheapest fare, fastest time, shortest distance
 - **Two algorithms**: Dijkstra (guaranteed optimal on any weight) and A*
   (heuristic-guided search using real coordinates, faster in practice)
-- **Interactive graph visualization** of all stops and the highlighted route
+- **Mapped 2D and 3D view** of Gweru streets and building footprints using
+  MapLibre GL JS and the OpenFreeMap Positron vector style
+- **Illustrative model connections** between stop coordinates, clearly
+  distinguished from mapped streets and official kombi lines
+- **Fare provenance labels** that separate the one user reported CBD to MSU
+  fare from demonstration estimates
 - **Static client-side route finder** that works on GitHub Pages without a Flask server
 - **REST API** so the routing logic is decoupled from the frontend
 - **Unit tested** core algorithms
@@ -31,7 +37,9 @@ taking algorithms from the classroom into a locally relevant application.
 - Python 3 (OOP graph model, `graph.py`)
 - Flask (REST API, `app.py`)
 - Gunicorn (production WSGI server for deployment)
-- Vanilla JS + [vis-network](https://visjs.github.io/vis-network/) (client-side routing and visualization)
+- Vanilla JS + [MapLibre GL JS](https://maplibre.org/) (client-side routing and mapping)
+- [OpenFreeMap](https://openfreemap.org/) vector tiles based on
+  [OpenStreetMap](https://www.openstreetmap.org/copyright) data
 - pytest (tests)
 
 ## Project structure
@@ -48,7 +56,8 @@ kombi-route-optimizer/
 │   ├── index.html
 │   ├── style.css
 │   ├── script.js
-│   └── router.js
+│   ├── router.js
+│   └── map-data.js
 ├── render.yaml             # Render web service configuration
 ├── tests/
 │   ├── test_graph.py
@@ -90,12 +99,16 @@ for the repository using **GitHub Actions** as the build and deployment source.
 The workflow will publish the site. For this repository its expected URL is
 `https://aleckalkahmudyanadzo-cyber.github.io/kombi-route-optimizer/`. A custom
 domain would require updating the canonical URL generation before using it.
-The site uses the existing external vis-network CDN for the graph visualization.
+The site loads MapLibre GL JS from a CDN and map styles and vector tiles from
+OpenFreeMap. The visible attribution links to OpenStreetMap contributors and
+OpenFreeMap. If the external map service is unavailable, route calculations
+remain available and the map displays an accessible warning.
 
 Search engines may take time to discover and index the site; this workflow
-does not guarantee indexing. All stop coordinates/connections and route
-distances, fares, and times are illustrative estimates, not live or verified
-transit information.
+does not guarantee indexing. The basemap shows mapped streets and buildings;
+the app's stop coordinates are approximate and its dashed connection lines
+are illustrative graph links, not official kombi lines, road directions, or
+turn by turn paths.
 
 ## Deploying to Render
 
@@ -152,12 +165,39 @@ admissible — was the most interesting part of building this, and it's the
 kind of nuance that's easy to miss if you just copy a textbook A*
 implementation without thinking about what the heuristic actually represents.
 
-## Data note
+## Data and fare provenance
 
-Stop names and connectivity reflect real Gweru suburbs and kombi ranks.
-Exact distances, fares, and travel times are **estimates** for demonstration
-— before treating this as production-accurate, replace `data/gweru_routes.json`
-with surveyed figures.
+The vector basemap provides mapped OpenStreetMap streets and building
+footprints through OpenFreeMap. It is separate from the approximate stop
+coordinates and dashed straight line model connections in
+`data/gweru_routes.json`; those lines are not mapped kombi routes or road
+directions. Distance and travel time weights remain demonstration estimates.
+The MSU Main Campus to Gweru CBD model edge uses a US$0.50 fare from a user report
+dated 2026-09-28. It is not independently verified and has no confirmed
+effective date. The graph is undirected and applies that reported fare in both
+directions, as recorded in the edge's `fare_evidence.directional_scope`;
+this is a model assumption, not independent confirmation for the reverse
+direction. The report contains no distance or time measurement for this
+connection, so both weights are `null`; distance and time searches skip that
+edge, and a fare-selected itinerary shows those totals as not recorded. When
+the endpoints are CBD and MSU, other route objectives can still surface the
+reported direct fare as context while explaining that its missing distance
+and time exclude it from those comparisons.
+
+The Herald reported a general Gweru private kombi range of US$0.75 to US$1
+per trip on 2026-03-24, including a Mkoba 20 commuter's account of a fare
+increase. The report does not provide a route by route schedule or clear fare
+effective date. It is recorded as `fare_market_reference` context only and
+does not set any graph weight. All other `fare_usd` values remain
+demonstration estimates.
+
+When updating a route fare, keep its numeric `fare_usd` weight and attach
+route-level `fare_evidence` with the source, source URL or interview context,
+report or observation date, currency, effective date (or `null` if unknown),
+verification status, and directional scope. Do not apply a published general
+range to individual edges without route-specific evidence. Use dated
+on-street origin and destination fare surveys or a published operator or
+authority schedule to verify missing fares.
 
 ## Possible extensions
 

@@ -40,11 +40,12 @@ class Node:
 @dataclass
 class Edge:
     to: str
-    distance_km: float
+    distance_km: Optional[float]
     fare_usd: float
-    time_min: float
+    time_min: Optional[float]
+    fare_evidence: Optional[Dict[str, object]] = None
 
-    def weight(self, key: str) -> float:
+    def weight(self, key: str) -> Optional[float]:
         return getattr(self, key)
 
 
@@ -73,6 +74,7 @@ class Graph:
                 route["distance_km"],
                 route["fare_usd"],
                 route["time_min"],
+                route.get("fare_evidence"),
             )
         return g
 
@@ -80,9 +82,21 @@ class Graph:
         self.nodes[node.id] = node
         self.adjacency.setdefault(node.id, [])
 
-    def add_edge(self, a: str, b: str, distance_km: float, fare_usd: float, time_min: float) -> None:
-        self.adjacency.setdefault(a, []).append(Edge(b, distance_km, fare_usd, time_min))
-        self.adjacency.setdefault(b, []).append(Edge(a, distance_km, fare_usd, time_min))
+    def add_edge(
+        self,
+        a: str,
+        b: str,
+        distance_km: Optional[float],
+        fare_usd: float,
+        time_min: Optional[float],
+        fare_evidence: Optional[Dict[str, object]] = None,
+    ) -> None:
+        self.adjacency.setdefault(a, []).append(
+            Edge(b, distance_km, fare_usd, time_min, fare_evidence)
+        )
+        self.adjacency.setdefault(b, []).append(
+            Edge(a, distance_km, fare_usd, time_min, fare_evidence)
+        )
 
     def _haversine_km(self, a: str, b: str) -> float:
         """Straight-line distance between two stops, used as the A* heuristic."""
@@ -114,7 +128,10 @@ class Graph:
             if u == goal:
                 break
             for edge in self.adjacency[u]:
-                nd = d + edge.weight(weight_key)
+                edge_weight = edge.weight(weight_key)
+                if edge_weight is None:
+                    continue
+                nd = d + edge_weight
                 if nd < dist[edge.to]:
                     dist[edge.to] = nd
                     prev[edge.to] = u
@@ -150,7 +167,10 @@ class Graph:
             if u == goal:
                 break
             for edge in self.adjacency[u]:
-                tentative = g_score[u] + edge.weight(weight_key)
+                edge_weight = edge.weight(weight_key)
+                if edge_weight is None:
+                    continue
+                tentative = g_score[u] + edge_weight
                 if tentative < g_score[edge.to]:
                     g_score[edge.to] = tentative
                     prev[edge.to] = u
