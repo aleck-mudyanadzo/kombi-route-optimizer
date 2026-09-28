@@ -43,6 +43,11 @@ def stops():
     ])
 
 
+@app.route("/data/gweru_routes.json")
+def route_data():
+    return send_from_directory(os.path.join(os.path.dirname(__file__), "data"), "gweru_routes.json")
+
+
 def public_base_url():
     value = os.environ.get("PUBLIC_BASE_URL", "").strip()
     if not value:

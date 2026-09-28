@@ -86,6 +86,13 @@ def test_api_rejects_astar_for_non_distance_mode():
     assert "A* is only supported" in resp.get_json()["error"]
 
 
+def test_route_dataset_is_served_for_local_client():
+    response = flask_app.test_client().get("/data/gweru_routes.json")
+
+    assert response.status_code == 200
+    assert response.get_json()["stops"][0]["id"] == "kudzanai"
+
+
 def test_api_rejects_unknown_algorithm():
     client = flask_app.test_client()
     resp = client.get("/api/route?from=town&to=msu_main&algo=unknown")

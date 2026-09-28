@@ -22,6 +22,7 @@ taking algorithms from the classroom into a locally relevant application.
 - **Two algorithms**: Dijkstra (guaranteed optimal on any weight) and A*
   (heuristic-guided search using real coordinates, faster in practice)
 - **Interactive graph visualization** of all stops and the highlighted route
+- **Static client-side route finder** that works on GitHub Pages without a Flask server
 - **REST API** so the routing logic is decoupled from the frontend
 - **Unit tested** core algorithms
 
@@ -30,7 +31,7 @@ taking algorithms from the classroom into a locally relevant application.
 - Python 3 (OOP graph model, `graph.py`)
 - Flask (REST API, `app.py`)
 - Gunicorn (production WSGI server for deployment)
-- Vanilla JS + [vis-network](https://visjs.github.io/vis-network/) (frontend)
+- Vanilla JS + [vis-network](https://visjs.github.io/vis-network/) (client-side routing and visualization)
 - pytest (tests)
 
 ## Project structure
@@ -41,13 +42,17 @@ kombi-route-optimizer/
 ├── graph.py                # Graph, Node, Edge classes + Dijkstra + A*
 ├── data/
 │   └── gweru_routes.json   # Stops and routes dataset
+├── scripts/
+│   └── build_pages.py      # Builds static site and canonical crawler files
 ├── static/
 │   ├── index.html
 │   ├── style.css
-│   └── script.js
+│   ├── script.js
+│   └── router.js
 ├── render.yaml             # Render web service configuration
 ├── tests/
-│   └── test_graph.py
+│   ├── test_graph.py
+│   └── test_pages_build.py
 └── requirements.txt
 ```
 
@@ -66,7 +71,31 @@ Run the tests:
 
 ```bash
 python -m pytest tests/ -v
+node --test static/router.test.js
 ```
+
+## Deploying the static demo with GitHub Pages
+
+The browser application reads `data/gweru_routes.json` directly and runs
+Dijkstra or A* locally; it does not call the Flask API. The Flask API remains
+available for server deployments and its behavior is unchanged. The
+`.github/workflows/deploy-pages.yml` workflow tests the project and builds the
+static artifact when changes reach `main`. It derives the canonical GitHub
+Pages URL from the repository name and generates `sitemap.xml` and
+`robots.txt`; all local asset and data URLs are relative so the site works at
+the repository subpath.
+
+To publish, merge the reviewed changes into `main`, then enable **GitHub Pages**
+for the repository using **GitHub Actions** as the build and deployment source.
+The workflow will publish the site. For this repository its expected URL is
+`https://aleckalkahmudyanadzo-cyber.github.io/kombi-route-optimizer/`. A custom
+domain would require updating the canonical URL generation before using it.
+The site uses the existing external vis-network CDN for the graph visualization.
+
+Search engines may take time to discover and index the site; this workflow
+does not guarantee indexing. All stop coordinates/connections and route
+distances, fares, and times are illustrative estimates, not live or verified
+transit information.
 
 ## Deploying to Render
 

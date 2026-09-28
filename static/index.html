@@ -8,10 +8,12 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Kombi Route Optimizer — Gweru" />
 <meta property="og:description" content="Explore shortest, cheapest, and fastest kombi routes across Gweru, Zimbabwe. Route distances, fares, and travel times are illustrative estimates." />
+<meta property="og:url" content="__CANONICAL_URL__" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="Kombi Route Optimizer — Gweru" />
 <meta name="twitter:description" content="Explore shortest, cheapest, and fastest kombi routes across Gweru, Zimbabwe. Route distances, fares, and travel times are illustrative estimates." />
-<link rel="stylesheet" href="style.css" />
+<link rel="canonical" href="__CANONICAL_URL__" />
+<link rel="stylesheet" href="./style.css" />
 <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
@@ -45,8 +47,10 @@
           <option value="astar">A*</option>
         </select>
       </div>
-      <button id="findBtn">Find Route</button>
+      <button id="findBtn" disabled>Find Route</button>
     </section>
+
+    <p id="message" role="status" aria-live="polite">Loading route data…</p>
 
     <section id="result" class="result hidden">
       <h2>Route</h2>
@@ -62,9 +66,10 @@
   </main>
 
   <footer>
-    <p>Built by Aleck Mudyanadzo — Midlands State University, Computer Science. Data is illustrative; verify fares/distances before production use.</p>
+    <p>Built by Aleck Mudyanadzo — Midlands State University, Computer Science. Stop connectivity and coordinates are illustrative, and distances, fares, and travel times are estimates, not live transit information. Verify all figures before relying on them.</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="./router.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
