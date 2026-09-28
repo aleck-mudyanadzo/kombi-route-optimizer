@@ -3,70 +3,109 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kombi Route Optimizer — Gweru</title>
-<meta name="description" content="Explore shortest, cheapest, and fastest kombi routes across Gweru, Zimbabwe. Route distances, fares, and travel times are illustrative estimates." />
+<title>Kombi Route Optimizer | Gweru</title>
+<meta name="description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Kombi Route Optimizer — Gweru" />
-<meta property="og:description" content="Explore shortest, cheapest, and fastest kombi routes across Gweru, Zimbabwe. Route distances, fares, and travel times are illustrative estimates." />
+<meta property="og:title" content="Kombi Route Optimizer | Gweru" />
+<meta property="og:description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
 <meta property="og:url" content="__CANONICAL_URL__" />
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Kombi Route Optimizer — Gweru" />
-<meta name="twitter:description" content="Explore shortest, cheapest, and fastest kombi routes across Gweru, Zimbabwe. Route distances, fares, and travel times are illustrative estimates." />
+<meta name="twitter:title" content="Kombi Route Optimizer | Gweru" />
+<meta name="twitter:description" content="Compare kombi routes across Gweru by distance, fare, or travel time. All figures are estimates, not live transit information." />
 <link rel="canonical" href="__CANONICAL_URL__" />
 <link rel="stylesheet" href="./style.css" />
 <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>🚐 Kombi Route Optimizer</h1>
-    <p class="subtitle">Shortest, cheapest, and fastest routes across Gweru — built with Dijkstra's algorithm &amp; A* search</p>
+  <header class="site-header">
+    <div class="header-content">
+      <p class="eyebrow">Gweru, Zimbabwe <span aria-hidden="true">•</span> Route planner</p>
+      <h1><span class="brand-mark" aria-hidden="true">K</span> Kombi Route Optimizer</h1>
+      <p class="subtitle">Compare journeys across the city with Dijkstra and A* search.</p>
+    </div>
   </header>
 
   <main>
-    <section class="controls">
-      <div class="field">
-        <label for="from">From</label>
-        <select id="from"></select>
+    <section class="controls-card" aria-labelledby="planner-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Plan a journey</p>
+          <h2 id="planner-title">Where are you headed?</h2>
+        </div>
+        <p class="section-note">Choose two stops and what matters most.</p>
       </div>
-      <div class="field">
-        <label for="to">To</label>
-        <select id="to"></select>
-      </div>
-      <div class="field">
-        <label for="mode">Optimize for</label>
-        <select id="mode">
-          <option value="shortest">Shortest distance</option>
-          <option value="cheapest">Cheapest fare</option>
-          <option value="fastest">Fastest time</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="algo">Algorithm</label>
-        <select id="algo">
-          <option value="dijkstra">Dijkstra</option>
-          <option value="astar">A*</option>
-        </select>
-      </div>
-      <button id="findBtn" disabled>Find Route</button>
-    </section>
-
-    <p id="message" role="status" aria-live="polite">Loading route data…</p>
-
-    <section id="result" class="result hidden">
-      <h2>Route</h2>
-      <p id="routePath"></p>
-      <div class="stats">
-        <div><span id="statDistance"></span><label>km</label></div>
-        <div><span id="statFare"></span><label>USD fare</label></div>
-        <div><span id="statTime"></span><label>minutes</label></div>
+      <div class="controls">
+        <div class="field">
+          <label for="from">Starting stop</label>
+          <select id="from"></select>
+        </div>
+        <div class="field">
+          <label for="to">Destination</label>
+          <select id="to"></select>
+        </div>
+        <div class="field">
+          <label for="mode">Prioritize</label>
+          <select id="mode">
+            <option value="shortest">Shortest distance</option>
+            <option value="cheapest">Lowest fare</option>
+            <option value="fastest">Fastest journey</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="algo">Search method</label>
+          <select id="algo">
+            <option value="dijkstra">Dijkstra</option>
+            <option value="astar">A* search</option>
+          </select>
+        </div>
+        <button id="findBtn" disabled>Find a route</button>
       </div>
     </section>
 
-    <div id="network"></div>
+    <p id="message" class="status" role="status" aria-live="polite">Loading route data…</p>
+
+    <section id="result" class="result-card hidden" aria-labelledby="result-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Your journey</p>
+          <h2 id="result-title">Recommended route</h2>
+        </div>
+      </div>
+      <p id="routePath" class="route-path"></p>
+      <dl class="stats">
+        <div class="stat">
+          <dt>Distance</dt>
+          <dd><span id="statDistance"></span><span class="unit">km</span></dd>
+        </div>
+        <div class="stat">
+          <dt>Estimated fare</dt>
+          <dd><span id="statFare"></span><span class="unit">USD</span></dd>
+        </div>
+        <div class="stat">
+          <dt>Estimated time</dt>
+          <dd><span id="statTime"></span><span class="unit">minutes</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="map-card" aria-labelledby="map-title">
+      <div class="section-heading map-heading">
+        <div>
+          <p class="eyebrow">Across the city</p>
+          <h2 id="map-title">Stop map</h2>
+        </div>
+        <p class="section-note">The selected journey appears in maroon.</p>
+      </div>
+      <div id="network" role="region" aria-label="Interactive map of Gweru stops and the selected route"></div>
+    </section>
   </main>
 
   <footer>
-    <p>Built by Aleck Mudyanadzo — Midlands State University, Computer Science. Stop connectivity and coordinates are illustrative, and distances, fares, and travel times are estimates, not live transit information. Verify all figures before relying on them.</p>
+    <div class="disclaimer">
+      <p class="eyebrow">Important information</p>
+      <p>Stops, connections, route distances, fares, and travel times are estimates, not live transit information. Please verify all figures before relying on them.</p>
+    </div>
+    <p class="credit">Built by Aleck Mudyanadzo <span aria-hidden="true">•</span> Midlands State University, Computer Science</p>
   </footer>
 
   <script src="./router.js"></script>
