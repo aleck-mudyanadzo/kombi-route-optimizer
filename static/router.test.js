@@ -4,10 +4,36 @@ const path = require('node:path');
 const test = require('node:test');
 const { findRoute } = require('./router.js');
 
+const frontendHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+const frontendScript = fs.readFileSync(path.join(__dirname, 'script.js'), 'utf8');
 const data = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', 'data', 'gweru_routes.json'),
   'utf8',
 ));
+
+test('keeps public page copy free of hyphens and preserves the route estimate disclaimer', () => {
+  const visibleText = frontendHtml
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ');
+  const metadataText = [...frontendHtml.matchAll(
+    /<meta\s+(?:name|property)="(?:description|og:title|og:description|twitter:title|twitter:description)"\s+content="([^"]*)"/gi,
+  )]
+    .map(([, content]) => content)
+    .join(' ');
+  const statusText = [...frontendScript.matchAll(
+    /message\.textContent\s*=\s*(?:'([^']*)'|"([^"]*)"|`([^`]*)`)/g,
+  )]
+    .map(([, singleQuoted, doubleQuoted, template]) => singleQuoted || doubleQuoted || template)
+    .join(' ');
+
+  assert.doesNotMatch(`${visibleText} ${metadataText} ${statusText}`, /[-\u2010-\u2015]/);
+  assert.match(
+    frontendHtml,
+    /estimates, not live transit information\. Please verify all figures before relying on them\./,
+  );
+  assert.match(frontendHtml, /id="message" class="status" role="status" aria-live="polite"/);
+});
 
 test('finds shortest routes using distance, fare, and time weights', () => {
   const route = findRoute(data, 'town', 'msu_main', 'distance_km', 'dijkstra');

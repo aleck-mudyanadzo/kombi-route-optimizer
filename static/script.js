@@ -40,8 +40,8 @@ function renderBaseGraph() {
     label: stop.name,
     shape: 'dot',
     size: 12,
-    color: '#334155',
-    font: { color: '#e2e8f0', size: 12 },
+    color: '#8d596b',
+    font: { color: '#493239', size: 13 },
   })));
   edgesDataSet = new vis.DataSet();
 
@@ -54,17 +54,17 @@ function renderBaseGraph() {
 
 function highlightPath(path) {
   nodesDataSet.forEach((node) => {
-    nodesDataSet.update({ id: node.id, color: '#334155', size: 12 });
+    nodesDataSet.update({ id: node.id, color: '#8d596b', size: 12 });
   });
   edgesDataSet.clear();
 
   path.forEach((id, index) => {
-    nodesDataSet.update({ id, color: '#22c55e', size: 18 });
+    nodesDataSet.update({ id, color: '#70283f', size: 18 });
     if (index < path.length - 1) {
       edgesDataSet.add({
         from: id,
         to: path[index + 1],
-        color: { color: '#22c55e' },
+        color: { color: '#a65e3c' },
         width: 3,
       });
     }
@@ -91,7 +91,7 @@ function findRoute() {
     return;
   }
   if (algorithm === 'astar' && mode !== 'shortest') {
-    message.textContent = 'A* is only supported for shortest-distance routing. Choose Dijkstra for fare or time.';
+    message.textContent = 'A* is only supported for the shortest route. Choose Dijkstra for fare or time.';
     return;
   }
 

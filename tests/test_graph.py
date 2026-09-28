@@ -159,7 +159,7 @@ def test_home_page_includes_search_and_social_metadata():
     html = response.get_data(as_text=True)
 
     assert response.status_code == 200
-    assert '<title>Kombi Route Optimizer — Gweru</title>' in html
+    assert '<title>Kombi Route Optimizer | Gweru</title>' in html
     assert 'name="description"' in html
     assert 'property="og:title"' in html
     assert 'name="twitter:card"' in html
