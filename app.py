@@ -25,6 +25,7 @@ MODE_TO_WEIGHT = {
     "fastest": "time_min",
     "shortest": "distance_km",
 }
+ALLOWED_ALGOS = {"dijkstra", "astar"}
 
 
 @app.route("/")
@@ -51,10 +52,14 @@ def route():
         return jsonify({"error": "Both 'from' and 'to' query params are required"}), 400
     if mode not in MODE_TO_WEIGHT:
         return jsonify({"error": f"mode must be one of {list(MODE_TO_WEIGHT)}"}), 400
+    if algo not in ALLOWED_ALGOS:
+        return jsonify({"error": f"algo must be one of {sorted(ALLOWED_ALGOS)}"}), 400
     if start not in graph.nodes or goal not in graph.nodes:
         return jsonify({"error": "Unknown stop id"}), 404
 
     weight_key = MODE_TO_WEIGHT[mode]
+    if algo == "astar" and weight_key != "distance_km":
+        return jsonify({"error": "A* is only supported for shortest-distance routing because its heuristic is only admissible for distance-based optimization"}), 400
 
     try:
         if algo == "astar":

@@ -2,8 +2,11 @@ import os
 import sys
 import math
 
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from app import app as flask_app
 from graph import Graph, Node
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "gweru_routes.json")
@@ -64,3 +67,42 @@ def test_real_data_loads_and_routes():
     assert path[0] == "town"
     assert path[-1] == "msu_main"
     assert total > 0
+
+
+def test_astar_is_rejected_for_non_distance_modes():
+    g = Graph.from_json(DATA_PATH)
+    assert g.a_star("town", "msu_main", "distance_km") is not None
+    try:
+        g.a_star("town", "msu_main", "time_min")
+        assert False, "A* should reject non-distance optimization"
+    except ValueError:
+        pass
+
+
+def test_api_rejects_astar_for_non_distance_mode():
+    client = flask_app.test_client()
+    resp = client.get("/api/route?from=town&to=msu_main&mode=fastest&algo=astar")
+    assert resp.status_code == 400
+    assert "A* is only supported" in resp.get_json()["error"]
+
+
+def test_api_rejects_unknown_algorithm():
+    client = flask_app.test_client()
+    resp = client.get("/api/route?from=town&to=msu_main&algo=unknown")
+
+    assert resp.status_code == 400
+    assert resp.get_json() == {"error": "algo must be one of ['astar', 'dijkstra']"}
+
+
+@pytest.mark.parametrize(
+    ("algo", "mode"),
+    [("dijkstra", "fastest"), ("astar", "shortest")],
+)
+def test_api_accepts_supported_algorithms(algo, mode):
+    client = flask_app.test_client()
+    resp = client.get(
+        f"/api/route?from=town&to=msu_main&algo={algo}&mode={mode}"
+    )
+
+    assert resp.status_code == 200
+    assert resp.get_json()["algo"] == algo

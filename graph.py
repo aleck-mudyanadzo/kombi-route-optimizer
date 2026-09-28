@@ -126,13 +126,13 @@ class Graph:
 
     def a_star(self, start: str, goal: str, weight_key: str = "distance_km") -> Optional[Tuple[List[str], float]]:
         """
-        A* search. Heuristic is only admissible (guaranteed optimal) for
-        weight_key == 'distance_km' since it's derived from real coordinates.
-        For fare/time it still works as a best-effort guide but optimality
-        isn't guaranteed — documented here deliberately for the write-up.
+        A* search. The haversine heuristic is admissible only for
+        weight_key == 'distance_km'; use Dijkstra when optimizing by fare or time.
         """
         if weight_key not in self.VALID_WEIGHTS:
             raise ValueError(f"weight_key must be one of {self.VALID_WEIGHTS}")
+        if weight_key != "distance_km":
+            raise ValueError("A* is only supported for distance_km routing; use Dijkstra for fare/time optimization.")
         if start not in self.nodes or goal not in self.nodes:
             raise KeyError("start/goal must be valid stop ids")
 
