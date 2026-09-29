@@ -11,9 +11,9 @@ from scripts.build_pages import build_pages
 
 def test_builds_repo_relative_pages_with_canonical_crawler_files(tmp_path):
     site_dir = tmp_path / "site"
-    canonical_url = build_pages("aleckalkahmudyanadzo-cyber/kombi-route-optimizer", site_dir)
+    canonical_url = build_pages("aleck-mudyanadzo/kombi-route-optimizer", site_dir)
 
-    assert canonical_url == "https://aleckalkahmudyanadzo-cyber.github.io/kombi-route-optimizer/"
+    assert canonical_url == "https://aleck-mudyanadzo.github.io/kombi-route-optimizer/"
     index_html = (site_dir / "index.html").read_text(encoding="utf-8")
     assert f'<link rel="canonical" href="{canonical_url}"' in index_html
     assert 'href="./style.css"' in index_html
