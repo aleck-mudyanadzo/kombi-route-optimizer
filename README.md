@@ -97,7 +97,7 @@ the repository subpath.
 To publish, merge the reviewed changes into `main`, then enable **GitHub Pages**
 for the repository using **GitHub Actions** as the build and deployment source.
 The workflow will publish the site. For this repository its expected URL is
-`https://aleckalkahmudyanadzo-cyber.github.io/kombi-route-optimizer/`. A custom
+`https://aleck-mudyanadzo.github.io/kombi-route-optimizer/`. A custom
 domain would require updating the canonical URL generation before using it.
 The site loads MapLibre GL JS from a CDN and map styles and vector tiles from
 OpenFreeMap. The visible attribution links to OpenStreetMap contributors and
