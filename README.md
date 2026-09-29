@@ -208,4 +208,4 @@ authority schedule to verify missing fares.
 
 ## Author
 
-Aleck Mudyanadzo — BSc Computer Science, Midlands State University
+Aleck Mudyanadzo  BSc Computer Science, Midlands State University
