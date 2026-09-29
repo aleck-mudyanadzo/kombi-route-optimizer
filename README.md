@@ -14,7 +14,7 @@ State University, Computer Science.
 Kombis are the backbone of urban transport in Zimbabwe, but there's no tool
 for comparing routes by cost, time, or distance the way ride-hailing apps do
 elsewhere. This project models that problem as a weighted graph and applies
-classic pathfinding algorithms to solve it — a small but complete example of
+classic pathfinding algorithms to solve it a small but complete example of
 taking algorithms from the classroom into a locally relevant application.
 
 ## Features
@@ -139,7 +139,7 @@ estimates, not verified live transit information.
 ## Algorithm design & complexity analysis
 
 Each stop is a `Node`; each kombi route is a bidirectional `Edge` carrying
-**three independent weights** — distance (km), fare (USD), and time (min) —
+**three independent weights** distance (km), fare (USD), and time (min) 
 so the same graph answers "cheapest", "fastest", and "shortest" queries just
 by switching which weight the search uses.
 
@@ -160,8 +160,8 @@ by switching which weight the search uses.
   guaranteed to be optimal, even though it still returns a good result in
   this dataset
 
-This distinction — where a heuristic works and where it stops being
-admissible — was the most interesting part of building this, and it's the
+This distinction  where a heuristic works and where it stops being
+admissible was the most interesting part of building this, and it's the
 kind of nuance that's easy to miss if you just copy a textbook A*
 implementation without thinking about what the heuristic actually represents.
 
